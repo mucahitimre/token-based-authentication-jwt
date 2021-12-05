@@ -10,6 +10,7 @@ namespace JwtTokenize
     public interface ITokenizer
     {
         string GenerateToken(IUser user, Dictionary<string, object> payload);
+
         bool TryVerifyingToken(string token, out IUser user, out Dictionary<string, object> payload);
     }
 
@@ -73,7 +74,6 @@ namespace JwtTokenize
 
                 var data = JObject.Parse(json);
 
-
                 return true;
             }
             catch (TokenExpiredException e)
@@ -109,21 +109,37 @@ namespace JwtTokenize
         public bool IsActive { get; set; }
     }
 
-    public interface IUserValidator
+    public interface IMembershipService
     {
-        IUser ValidateUser(string token);
+        IUser ValidateUserByToken(string token);
+
+        IUser ValidateUser(string email, string password);
+
+        string GetToken(IUser user);
     }
 
-    public class MemberValidator : IUserValidator
+    public class MembershipService : IMembershipService
     {
         private readonly ITokenizer _tokenizer;
+        private readonly IUserManager _userManager;
 
-        public MemberValidator(ITokenizer tokenizer)
+        public MembershipService(
+            ITokenizer tokenizer,
+            IUserManager userManager)
         {
             _tokenizer = tokenizer;
+            _userManager = userManager;
         }
 
-        public IUser ValidateUser(string token)
+        public string GetToken(IUser user)
+        {
+            var payload = _userManager.GetUserPayload(user);
+            var token = _tokenizer.GenerateToken(user, payload);
+
+            return token;
+        }
+
+        public IUser ValidateUserByToken(string token)
         {
             if (_tokenizer.TryVerifyingToken(token, out var user, out var data))
             {
@@ -141,6 +157,25 @@ namespace JwtTokenize
             }
 
             return null;
+        }
+
+        public IUser ValidateUser(string email, string password)
+        {
+            CheckEmailPasswordControl(email, password);
+
+            var user = _userManager.GetUser(email);
+
+            return user;
+        }
+
+        private void CheckEmailPasswordControl(string email, string password)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            // encode the password and compare it with the encoded password in the database
         }
     }
 
