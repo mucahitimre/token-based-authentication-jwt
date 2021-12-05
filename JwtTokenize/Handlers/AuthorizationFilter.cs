@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace JwtTokenize.Controllers
+namespace JwtTokenize.Handlers
 {
     public class AuthorizationFilter : IAuthorizationFilter
     {
