@@ -14,7 +14,7 @@ namespace JwtTokenize.Services
                 return null;
             }
 
-            return new Member { Id = id, Email = $"{RandomString(10)}@foo.com", Name = RandomString(5) };
+            return new Member { Id = id, Email = $"{RandomString(10)}@foo.com", Name = RandomString(5), IsActive = true, IsDelete = false };
         }
 
         public IUser GetUser(string email)

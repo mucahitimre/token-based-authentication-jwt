@@ -29,11 +29,10 @@ namespace JwtTokenize.Services
                       .WithAlgorithm(new HMACSHA256Algorithm()) // symmetric
                       .WithSecret(GetSecret())
                       .AddClaims(payload)
-                      .AddClaim(ClaimName.OriginatingIdentityString, user.Id)
-                      .AddClaim(ClaimName.FullName, user.Name)
-                      .AddClaim(ClaimName.VerifiedEmail, user.Email)
+                      .AddClaim("user-id", user.Id)
+                      .AddClaim("user-name", user.Name)
+                      .AddClaim("user-email", user.Email)
                       .AddClaim(ClaimName.ExpirationTime, DateTimeOffset.UtcNow.AddMinutes(_jwtOptions.Value.ExpirationMinute).ToUnixTimeSeconds())
-                      //.AddClaim("exp", DateTimeOffset.UtcNow.AddMinutes(_jwtOptions.Value.ExpirationMinute).ToUnixTimeSeconds())
                       .Encode();
 
             return token;
@@ -70,12 +69,15 @@ namespace JwtTokenize.Services
                     return false;
                 }
 
-                var userIdName = nameof(ClaimName.OriginatingIdentityString);
-                if (payload != null
-                    && payload.ContainsKey(userIdName)
-                    && int.TryParse(payload[userIdName].ToString(), out var id))
+                var expName = "exp";
+                if (payload.ContainsKey(expName) && long.TryParse(payload[expName].ToString(), out var date) && date < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
                 {
+                    throw new TokenExpiredException("Token is expired");
+                }
 
+                var userIdName = "user-id";
+                if (payload.ContainsKey(userIdName) && int.TryParse(payload[userIdName].ToString(), out var id))
+                {
                     userId = id;
                 }
 

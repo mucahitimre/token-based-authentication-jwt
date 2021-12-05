@@ -1,5 +1,5 @@
-﻿using JwtTokenize.Models.Dtos;
-using Microsoft.AspNetCore.Authorization;
+﻿using JwtTokenize.Handlers;
+using JwtTokenize.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JwtTokenize.Controllers

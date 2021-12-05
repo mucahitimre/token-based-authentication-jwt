@@ -23,6 +23,11 @@
 
         public IUser ValidateUserByToken(string token)
         {
+            if (string.IsNullOrEmpty(token))
+            {
+                return null;
+            }
+
             if (_tokenizer.TryVerifyingToken(token, out var userId, out var data))
             {
                 var user = _userManager.GetUser(userId);
