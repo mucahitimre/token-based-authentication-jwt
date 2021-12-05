@@ -87,7 +87,6 @@ namespace JwtTokenize
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "JwtTokenize v1");
-                    c.InjectStylesheet("/swagger-ui/SwaggerDark.css");
                 });
             }
             app.UseStaticFiles();
