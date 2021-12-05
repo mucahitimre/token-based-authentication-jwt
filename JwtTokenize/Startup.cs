@@ -1,4 +1,4 @@
-using JwtTokenize.Controllers;
+using JwtTokenize.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -18,8 +18,11 @@ namespace JwtTokenize
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
+            services.Configure<JwtOptions>(Configuration.GetSection(JwtConstanst.JWT_CONFIG_NAME));
+            services.AddTransient<ITokenizer, JwtTokenizer>();
+            services.AddTransient<IUserManager, MemberManager>();
+            services.AddTransient<IMembershipService, MembershipService>();
 
             services.AddAuthentication(x =>
             {
@@ -43,9 +46,6 @@ namespace JwtTokenize
                 };
             });
 
-            services.AddTransient<IMembershipService, MembershipService>();
-            services.AddTransient<ITokenizer, JwtTokenizer>();
-            services.AddTransient<IUserManager, UserManager>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "JwtTokenize", Version = "v1" });
