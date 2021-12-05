@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace JwtTokenize.Handlers
 {
-    public class AuthorizationFilter : IAuthorizationFilter
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+    public class AuthorizeAttribute : Attribute, IAuthorizationFilter
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
@@ -21,5 +21,10 @@ namespace JwtTokenize.Handlers
 
             // role and permission check
         }
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public class AllowAnonymousAttribute : Attribute
+    { 
     }
 }

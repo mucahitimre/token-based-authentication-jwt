@@ -94,13 +94,14 @@ namespace JwtTokenize
 
             app.UseHttpsRedirection();
             app.UseRouting();
-            app.UseAuthentication();
+
+            app.UseJwtAuthorization();
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-            app.UseJwtAuthorization();
         }
     }
 }
