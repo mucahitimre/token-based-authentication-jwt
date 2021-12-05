@@ -1,4 +1,4 @@
-﻿namespace JwtTokenize
+﻿namespace JwtTokenize.Abstractions
 {
     public interface IUser
     {
