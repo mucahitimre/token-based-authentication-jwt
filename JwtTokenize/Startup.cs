@@ -1,3 +1,4 @@
+using JwtTokenize.Controllers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -42,7 +43,7 @@ namespace JwtTokenize
                 };
             });
 
-            services.AddTransient<IUserValidator, MemberValidator>();
+            services.AddTransient<IMembershipService, MembershipService>();
             services.AddTransient<ITokenizer, JwtTokenizer>();
             services.AddTransient<IUserManager, UserManager>();
             services.AddSwaggerGen(c =>
@@ -94,6 +95,7 @@ namespace JwtTokenize
             {
                 endpoints.MapControllers();
             });
+            app.UseJwtAuthorization();
         }
     }
 }

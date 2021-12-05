@@ -9,15 +9,11 @@ namespace JwtTokenize.Controllers
     [Route("api/[controller]")]
     public class AuthenticationController : ControllerBase
     {
-        private readonly ITokenizer _tokenizer;
-        private readonly IUserManager _userManager;
+        private readonly IMembershipService _membershipService;
 
-        public AuthenticationController(
-            ITokenizer tokenizer,
-            IUserManager userManager)
+        public AuthenticationController(IMembershipService membershipService)
         {
-            _tokenizer = tokenizer;
-            _userManager = userManager;
+            _membershipService = membershipService;
         }
 
         [HttpPost]
@@ -25,14 +21,13 @@ namespace JwtTokenize.Controllers
         [AllowAnonymous]
         public string Login(string email, string password)
         {
-            var member = _userManager.GetUser(email);
+            var member = _membershipService.ValidateUser(email, password);
             if (member == null)
             {
                 throw new UnauthorizedAccessException();
             }
 
-            var payload = _userManager.GetUserPayload(member);
-            var token = _tokenizer.GenerateToken(member, payload);
+            var token = _membershipService.GetToken(member);
 
             return token;
         }
@@ -83,6 +78,8 @@ namespace JwtTokenize.Controllers
                 // not logged in or role not authorized
                 context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
             }
+
+            // role and permission check
         }
     }
 
@@ -95,17 +92,27 @@ namespace JwtTokenize.Controllers
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, IUserService userService, IJwtUtils jwtUtils)
+        public async Task Invoke(HttpContext context, IMembershipService membershipService)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            var userId = jwtUtils.ValidateJwtToken(token);
-            if (userId != null)
+            var user = membershipService.ValidateUserByToken(token);
+            if (user != null)
             {
                 // attach user to context on successful jwt validation
-                context.Items["User"] = userService.GetById(userId.Value);
+                context.Items["User"] = user;
             }
 
             await _next(context);
+        }
+    }
+
+    public static class CustomMiddlewareExtension
+    {
+        public static IApplicationBuilder UseJwtAuthorization(this IApplicationBuilder builder)
+        {
+            builder.UseMiddleware<JwtMiddleware>();
+
+            return builder;
         }
     }
 }
