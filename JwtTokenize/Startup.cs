@@ -20,9 +20,9 @@ namespace JwtTokenize
         {
             services.AddControllers();
             services.Configure<JwtOptions>(Configuration.GetSection(JwtConstanst.JWT_CONFIG_NAME));
-            services.AddTransient<ITokenizer, JwtTokenizer>();
-            services.AddTransient<IUserManager, MemberManager>();
-            services.AddTransient<IMembershipService, MembershipService>();
+            services.AddScoped<ITokenizer, JwtTokenizer>();
+            services.AddScoped<IUserManager, MemberManager>();
+            services.AddScoped<IMembershipService, MembershipService>();
 
             services.AddAuthentication(x =>
             {
@@ -84,8 +84,13 @@ namespace JwtTokenize
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JwtTokenize v1"));
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "JwtTokenize v1");
+                    c.InjectStylesheet("/swagger-ui/SwaggerDark.css");
+                });
             }
+            app.UseStaticFiles();
 
             app.UseHttpsRedirection();
             app.UseRouting();
