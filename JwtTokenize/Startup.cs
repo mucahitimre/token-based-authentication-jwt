@@ -89,8 +89,7 @@ namespace JwtTokenize
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "JwtTokenize v1");
                 });
             }
-            app.UseStaticFiles();
-
+            
             app.UseHttpsRedirection();
             app.UseRouting();
 
